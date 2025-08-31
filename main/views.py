@@ -1,9 +1,9 @@
 from django.shortcuts import render,HttpResponse
-from .serializers import UserSerializer
+from .serializers import UserSerializer,MyCustomTOPSerializer
 from .models import CustomUser
 from rest_framework import viewsets,status
 from rest_framework.response import Response
-
+from rest_framework_simplejwt.views import TokenObtainPairView
 
 # Create your views here.
 def the_first(request):
@@ -26,3 +26,6 @@ class UserApi(viewsets.ViewSet):
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+    
+class MyCustomTOP(TokenObtainPairView):
+    serializer_class = MyCustomTOPSerializer
