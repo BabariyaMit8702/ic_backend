@@ -3,7 +3,10 @@ from .serializers import UserSerializer,MyCustomTOPSerializer
 from .models import CustomUser
 from rest_framework import viewsets,status
 from rest_framework.response import Response
-from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework_simplejwt.views import TokenObtainPairView,TokenRefreshView
+from datetime import timedelta
+from django.utils import timezone
+
 
 # Create your views here.
 def the_first(request):
@@ -29,3 +32,61 @@ class UserApi(viewsets.ViewSet):
     
 class MyCustomTOP(TokenObtainPairView):
     serializer_class = MyCustomTOPSerializer
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        tokens = serializer.validated_data
+
+        response = Response({'messege':'login succussfully!'},status=status.HTTP_200_OK)
+
+        access_token = tokens['access']
+        refresh_token = tokens['refresh']
+
+        access_exp = timezone.now() + timedelta(minutes=60)
+        refresh_exp = timezone.now() + timedelta(days=30)
+
+        response.set_cookie(
+            key='access_token',
+            value=access_token,
+            httponly=True,
+            secure=True,
+            samesite='Lax',
+            expires=access_exp
+        )
+
+        response.set_cookie(
+            key='refresh_token',
+            value=refresh_token,
+            httponly=True,
+            secure=True,
+            samesite='Lax',
+            expires=refresh_exp
+        )
+
+        return response
+    
+class MyCUSREF(TokenRefreshView):
+
+    def post(self, request, *args, **kwargs):
+        refresh_token =request.COOKIES.get('refresh_token')
+
+        if refresh_token is None:
+            return Response({'error':'not found from cookies'},status=status.HTTP_400_BAD_REQUEST)
+        
+        serilizer = self.get_serializer(data={'refresh':refresh_token})
+        serilizer.is_valid(raise_exception=True)
+        access_token = serilizer.validated_data['access']
+
+        response = Response({'messee':'refreshed succusflly'})
+
+        response.set_cookie(
+            key='access_token',
+            value=access_token,
+            httponly=True,
+            secure=True,
+            samesite='Lax',
+            expires=timezone.now() + timedelta(minutes=60)
+        )
+
+        return response

@@ -9,7 +9,7 @@ router.register(r'user-api',views.UserApi,basename='user')
 urlpatterns = [
     path('',views.the_second),
     path('access/',views.MyCustomTOP.as_view()),
-    path('refresh/',TokenRefreshView.as_view()),
+    path('refresh/',views.MyCUSREF.as_view()),
     path('api/',include(router.urls)),
     ]
 
