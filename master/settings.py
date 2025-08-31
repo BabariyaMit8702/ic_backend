@@ -143,3 +143,5 @@ SIMPLE_JWT = {
     'ROTATE_REFRESH_TOKENS': False,   # Important: refresh token ko reuse karne ke liye False
     'BLACKLIST_AFTER_ROTATION': False, # Blacklist ko disable kar do
 }
+
+AUTH_USER_MODEL = "main.CustomUser"
