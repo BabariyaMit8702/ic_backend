@@ -7,7 +7,7 @@ from rest_framework.response import Response
 
 # Create your views here.
 def the_first(request):
-    return HttpResponse('MY APP')
+    return HttpResponse('MY BACKEND')
 
 def the_second(request):
     return HttpResponse('MY API')
