@@ -6,6 +6,7 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.views import TokenObtainPairView,TokenRefreshView
 from datetime import timedelta
 from django.utils import timezone
+from rest_framework.permissions import IsAuthenticated
 
 
 # Create your views here.
@@ -16,6 +17,11 @@ def the_second(request):
     return HttpResponse('MY API')
 
 class UserApi(viewsets.ViewSet):
+
+    def get_permissions(self):
+        if(self.action == 'list'):
+            return [IsAuthenticated()]
+        return []
 
     def list(self,request):
         users = CustomUser.objects.all()
@@ -43,15 +49,16 @@ class MyCustomTOP(TokenObtainPairView):
         access_token = tokens['access']
         refresh_token = tokens['refresh']
 
-        access_exp = timezone.now() + timedelta(minutes=60)
-        refresh_exp = timezone.now() + timedelta(days=30)
+        access_exp = timezone.now() + timedelta(minutes=100)
+        refresh_exp = timezone.now() + timedelta(days=31)
 
         response.set_cookie(
             key='access_token',
             value=access_token,
             httponly=True,
             secure=True,
-            samesite='Lax',
+            samesite='None',
+            path='/',
             expires=access_exp
         )
 
@@ -60,7 +67,8 @@ class MyCustomTOP(TokenObtainPairView):
             value=refresh_token,
             httponly=True,
             secure=True,
-            samesite='Lax',
+            samesite='None',
+            path='/',
             expires=refresh_exp
         )
 
@@ -85,8 +93,9 @@ class MyCUSREF(TokenRefreshView):
             value=access_token,
             httponly=True,
             secure=True,
-            samesite='Lax',
-            expires=timezone.now() + timedelta(minutes=60)
+            samesite='None',
+            path='/',
+            expires=timezone.now() + timedelta(minutes=100)
         )
 
         return response
