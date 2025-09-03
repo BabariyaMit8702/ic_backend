@@ -1,12 +1,15 @@
 from django.shortcuts import render,HttpResponse
-from .serializers import UserSerializer,MyCustomTOPSerializer
-from .models import CustomUser
+from .serializers import UserSerializer,MyCustomTOPSerializer,ProfileSerializer
+from .models import CustomUser,Profile
 from rest_framework import viewsets,status
 from rest_framework.response import Response
 from rest_framework_simplejwt.views import TokenObtainPairView,TokenRefreshView
 from datetime import timedelta
 from django.utils import timezone
 from rest_framework.permissions import IsAuthenticated
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
 
 
 # Create your views here.
@@ -99,3 +102,11 @@ class MyCUSREF(TokenRefreshView):
         )
 
         return response
+    
+class ProfileApi(viewsets.ViewSet):
+    permission_classes = [IsAuthenticated]
+
+    def retrieve(self,request,pk=None):
+        profile = Profile.objects.get(user=request.user)
+        serializer = ProfileSerializer(profile)
+        return Response(serializer.date)

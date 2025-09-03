@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.contrib.auth import get_user_model,authenticate
-from .models import CustomUser
+from .models import CustomUser,Profile
 
 mod_user = get_user_model()
 
@@ -42,3 +42,8 @@ class MyCustomTOPSerializer(TokenObtainPairSerializer):
             raise serializers.ValidationError('No Active Account Found')
         
         return super().validate(attrs)
+    
+class ProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Profile
+        fields = '__all__'
