@@ -44,9 +44,17 @@ class MyCustomTOPSerializer(TokenObtainPairSerializer):
         return super().validate(attrs)
     
 class ProfileSerializer(serializers.ModelSerializer):
+    profile_pic = serializers.SerializerMethodField()
+
     class Meta:
         model = Profile
         fields = '__all__'
+
+    def get_profile_pic(self, obj):
+        request = self.context.get('request')
+        if obj.profile_pic:
+            return request.build_absolute_uri(obj.profile_pic.url)
+        return None
 
 class PostSerializer(serializers.ModelSerializer):
     class Meta:

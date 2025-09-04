@@ -30,7 +30,7 @@ class UserApi(viewsets.ViewSet):
         return []
 
     def list(self,request):
-        users = CustomUser.objects.all()
+        users = CustomUser.objects.filter(username=request.user.username)
         serializer = UserSerializer(users,many=True)
         return Response(serializer.data)
     
@@ -111,7 +111,7 @@ class ProfileApi(viewsets.ViewSet):
 
     def retrieve(self,request,pk=None):
         profile = Profile.objects.get(user=request.user)
-        serializer = ProfileSerializer(profile)
+        serializer = ProfileSerializer(profile, context={'request': request})
         return Response(serializer.data)
     
 class PostApi(viewsets.ModelViewSet):
