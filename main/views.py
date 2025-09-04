@@ -1,6 +1,6 @@
-from django.shortcuts import render,HttpResponse
-from .serializers import UserSerializer,MyCustomTOPSerializer,ProfileSerializer
-from .models import CustomUser,Profile
+from django.shortcuts import HttpResponse,get_object_or_404
+from .serializers import UserSerializer,MyCustomTOPSerializer,ProfileSerializer,PostSerializer,LikeSerializer,CommentSerializer
+from .models import CustomUser,Profile,Post,Like,Comment
 from rest_framework import viewsets,status
 from rest_framework.response import Response
 from rest_framework_simplejwt.views import TokenObtainPairView,TokenRefreshView
@@ -8,6 +8,9 @@ from datetime import timedelta
 from django.utils import timezone
 from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth import get_user_model
+from rest_framework.decorators import action
+
+
 
 User = get_user_model()
 
@@ -109,4 +112,39 @@ class ProfileApi(viewsets.ViewSet):
     def retrieve(self,request,pk=None):
         profile = Profile.objects.get(user=request.user)
         serializer = ProfileSerializer(profile)
-        return Response(serializer.date)
+        return Response(serializer.data)
+    
+class PostApi(viewsets.ModelViewSet):
+    queryset = Post.objects.all()
+    serializer_class = PostSerializer
+    permission_classes = [IsAuthenticated]
+
+class LikeApi(viewsets.ViewSet):
+    permission_classes = [IsAuthenticated]  
+
+    @action(detail=True, methods=['get'])
+    def list_likes(self, request, pk=None):
+        post = get_object_or_404(Post, pk=pk)
+        likes = Like.objects.filter(post=post)
+        serializer = LikeSerializer(likes, many=True)
+        return Response(serializer.data)
+
+
+class ToggleLikeViewSet(viewsets.ViewSet):
+    permission_classes = [IsAuthenticated]
+
+    @action(detail=True, methods=['post'])
+    def toggle(self, request, pk=None):
+        post = get_object_or_404(Post, id=pk)
+        like, created = Like.objects.get_or_create(user=request.user, post=post)
+
+        if not created:
+            like.delete()
+            return Response({"message": "Unliked"})
+        return Response({"message": "Liked"})
+
+
+class CommentApi(viewsets.ModelViewSet):
+    queryset = Comment.objects.all()
+    serializer_class = CommentSerializer
+    permission_classes = [IsAuthenticated]

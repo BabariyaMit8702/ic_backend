@@ -20,10 +20,37 @@ class Profile(models.Model):
     def __str__(self):
         return self.user.username
     
-# class post(models.Model):
-#     user = models.AutoField(primary_key=True)
-#     title = models.CharField(max_length=30,default='')
-#     location = models.CharField(max_length=15,default='')
-#     image = models.ImageField(upload_to='posts/',null=True,blank=True)
-#     created_at = models.DateField(auto_now_add=True)
+class Post(models.Model):
+    post_id = models.AutoField(primary_key=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE)
+    title = models.CharField(max_length=30,default='')
+    location = models.CharField(max_length=15,default='')
+    image = models.ImageField(upload_to='posts/',null=True,blank=True)
+    created_at = models.DateField(auto_now_add=True)
 
+    def __str__(self):
+        return self.user.username
+    
+class Like(models.Model):
+    like_id = models.AutoField(primary_key=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE)
+    post = models.ForeignKey(Post,on_delete=models.CASCADE)
+
+    
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['user', 'post'], name='unique_user_post_like')
+        ]
+
+
+    def __str__(self):
+        return self.user.username
+    
+class Comment(models.Model):
+    comment_id = models.AutoField(primary_key=True)
+    body = models.CharField(max_length=100,default="empty")
+    user = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE)
+    post = models.ForeignKey(Post,on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.user.username
