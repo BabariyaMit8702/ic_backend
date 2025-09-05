@@ -59,6 +59,8 @@ class ProfileSerializer(serializers.ModelSerializer):
 class PostSerializer(serializers.ModelSerializer):
     post_url = serializers.SerializerMethodField(read_only=True)
     user = serializers.CharField(source="user.username", read_only=True)
+    like_count = serializers.SerializerMethodField(read_only=True)
+    is_liked_by_user = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Post
@@ -70,6 +72,16 @@ class PostSerializer(serializers.ModelSerializer):
         if obj.image:
             return request.build_absolute_uri(obj.image.url)
         return None
+    
+    def get_like_count(self, obj):
+        return Like.objects.filter(post=obj).count()
+
+    def get_is_liked_by_user(self, obj):
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            return Like.objects.filter(post=obj, user=request.user).exists()
+        return False
+
 
 class LikeSerializer(serializers.ModelSerializer):
     user = serializers.StringRelatedField()
