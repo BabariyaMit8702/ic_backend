@@ -57,9 +57,19 @@ class ProfileSerializer(serializers.ModelSerializer):
         return None
 
 class PostSerializer(serializers.ModelSerializer):
+    post_url = serializers.SerializerMethodField(read_only=True)
+    user = serializers.CharField(source="user.username", read_only=True)
+
     class Meta:
         model = Post
         fields = '__all__'
+        read_only_fields = ['user', 'created_at'] 
+
+    def get_post_url(self, obj):
+        request = self.context.get('request')
+        if obj.image:
+            return request.build_absolute_uri(obj.image.url)
+        return None
 
 class LikeSerializer(serializers.ModelSerializer):
     user = serializers.StringRelatedField()
