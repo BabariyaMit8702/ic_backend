@@ -114,6 +114,23 @@ class ProfileApi(viewsets.ViewSet):
         serializer = ProfileSerializer(profile, context={'request': request})
         return Response(serializer.data)
     
+    def partial_update(self, request, pk=None):
+        try:
+            profile = Profile.objects.get(user=request.user)
+        except Profile.DoesNotExist:
+            return Response({'detail': 'Profile not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+        serializer = ProfileSerializer(
+            profile,
+            data=request.data,
+            partial=True,
+            context={'request': request}
+        )
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
 class PostApi(viewsets.ModelViewSet):
     queryset = Post.objects.all()
     serializer_class = PostSerializer

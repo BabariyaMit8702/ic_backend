@@ -44,13 +44,13 @@ class MyCustomTOPSerializer(TokenObtainPairSerializer):
         return super().validate(attrs)
     
 class ProfileSerializer(serializers.ModelSerializer):
-    profile_pic = serializers.SerializerMethodField()
+    profile_pic_url = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Profile
         fields = '__all__'
 
-    def get_profile_pic(self, obj):
+    def get_profile_pic_url(self, obj):
         request = self.context.get('request')
         if obj.profile_pic:
             return request.build_absolute_uri(obj.profile_pic.url)
