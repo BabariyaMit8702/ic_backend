@@ -1,6 +1,6 @@
 from django.shortcuts import HttpResponse,get_object_or_404
-from .serializers import UserSerializer,MyCustomTOPSerializer,ProfileSerializer,PostSerializer,LikeSerializer,CommentSerializer
-from .models import CustomUser,Profile,Post,Like,Comment
+from .serializers import UserSerializer,MyCustomTOPSerializer,ProfileSerializer,PostSerializer,LikeSerializer,CommentSerializer,FollowSerializer
+from .models import CustomUser,Profile,Post,Like,Comment,Follow
 from rest_framework import viewsets,status
 from rest_framework.response import Response
 from rest_framework_simplejwt.views import TokenObtainPairView,TokenRefreshView
@@ -9,8 +9,7 @@ from django.utils import timezone
 from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth import get_user_model
 from rest_framework.decorators import action
-
-
+from rest_framework.views import APIView
 
 User = get_user_model()
 
@@ -168,3 +167,39 @@ class CommentApi(viewsets.ModelViewSet):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
     permission_classes = [IsAuthenticated]
+
+class Homepage(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self,request):
+        user = request.user
+        followings = Follow.objects.filter(follower=user).values_list('user',flat=True)
+        posts = Post.objects.filter(user__in=followings).order_by('-created_at')
+        # posts = Post.objects.filter(user__follower__follower=request.user)
+        serializer = PostSerializer(posts,many=True)
+        return Response(serializer.data)
+    
+class FollowApi(viewsets.ModelViewSet):
+    queryset = Follow.objects.all()
+    serializer_class = FollowSerializer
+    permission_classes = [IsAuthenticated]
+
+    @action(detail=True,methods=['POST'])
+    def toggle(self,request,pk=None):
+        try:
+            to_follow = User.objects.get(pk=pk)
+        except User.DoesNotExist:
+            return Response({'error':'user not found!'},status=status.HTTP_404_NOT_FOUND)
+        
+        if(request.user == to_follow):
+            return Response({'msg':'you can not follow your self.'},status=status.HTTP_400_BAD_REQUEST)
+        
+        follow ,created = Follow.objects.get_or_create(
+            user = to_follow,
+            follower = request.user
+        )
+        if not created:
+            # already following → unfollow
+            follow.delete()
+            return Response({"message": "Unfollowed"}, status=status.HTTP_200_OK)
+        return Response({"message": "Followed"}, status=status.HTTP_201_CREATED)

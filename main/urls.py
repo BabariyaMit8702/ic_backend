@@ -10,11 +10,14 @@ router.register(r'posts',views.PostApi,basename='post-deatails')
 router.register(r'likes',views.LikeApi,basename='like-details')
 router.register(r'comments',views.CommentApi,basename='comment-details')
 router.register(r'like-management',views.ToggleLikeViewSet,basename='like-management')
+router.register(r'follow',views.FollowApi,basename='follow-ops')
 
 urlpatterns = [
     path('',views.the_second),
     path('access/',views.MyCustomTOP.as_view()),
     path('refresh/',views.MyCUSREF.as_view()),
+    path('home-page-feed',views.Homepage.as_view(),name='home-feed'),
     path('api/',include(router.urls)),
     ]
+
 

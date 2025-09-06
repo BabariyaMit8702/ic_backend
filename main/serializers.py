@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.contrib.auth import get_user_model,authenticate
-from .models import CustomUser,Profile,Post,Like,Comment
+from .models import CustomUser,Profile,Post,Like,Comment,Follow
 
 mod_user = get_user_model()
 
@@ -96,3 +96,9 @@ class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
         fields = ['user','body']
+
+
+class FollowSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Follow
+        fields = '__all__'

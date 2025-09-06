@@ -54,3 +54,27 @@ class Comment(models.Model):
 
     def __str__(self):
         return self.user.username
+    
+class Follow(models.Model):
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='follower'
+    )
+
+    follower = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='following'
+    )
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['user', 'follower'], name='unique_follow')
+        ]
+
+    def __str__(self):
+        return self.user.username
