@@ -134,6 +134,9 @@ class PostApi(viewsets.ModelViewSet):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
     permission_classes = [IsAuthenticated]
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['user__username']
+
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
@@ -209,3 +212,13 @@ class OtherProfile(viewsets.ModelViewSet):
     serializer_class = ProfileSerializer
     filter_backends = [filters.SearchFilter]
     search_fields = ['user__username']
+
+          
+    
+class specific_profile(viewsets.ViewSet):
+     def retrieve(self,request,pk=None):
+         profile = Profile.objects.get(Profile_id=pk)
+         serializer = ProfileSerializer(profile, context={'request': request})
+         return Response(serializer.data)
+         
+

@@ -44,7 +44,9 @@ class MyCustomTOPSerializer(TokenObtainPairSerializer):
         return super().validate(attrs)
     
 class ProfileSerializer(serializers.ModelSerializer):
+    profile_int_id = serializers.IntegerField(source='Profile_id', read_only=True)
     profile_pic_url = serializers.SerializerMethodField(read_only=True)
+    user_name = serializers.CharField(source="user.username", read_only=True)
 
     class Meta:
         model = Profile
