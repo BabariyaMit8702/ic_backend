@@ -221,4 +221,11 @@ class specific_profile(viewsets.ViewSet):
          serializer = ProfileSerializer(profile, context={'request': request})
          return Response(serializer.data)
          
+class LogoutView(APIView):
+    def post(self, request):
+        response = Response({"message": "Logged out successfully"})
+        # Cookie remove kar do
+        response.delete_cookie("access_token", path="/")
+        response.delete_cookie("refresh_token", path="/")
+        return response
 

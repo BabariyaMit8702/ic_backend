@@ -19,6 +19,7 @@ urlpatterns = [
     path('access/',views.MyCustomTOP.as_view()),
     path('refresh/',views.MyCUSREF.as_view()),
     path('home-page-feed/',views.Homepage.as_view(),name='home-feed'),
+    path('log-out/',views.LogoutView.as_view(),name='logout'),
     path('api/',include(router.urls)),
     ]
 
