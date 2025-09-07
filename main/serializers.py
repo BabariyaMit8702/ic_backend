@@ -47,6 +47,11 @@ class ProfileSerializer(serializers.ModelSerializer):
     profile_int_id = serializers.IntegerField(source='Profile_id', read_only=True)
     profile_pic_url = serializers.SerializerMethodField(read_only=True)
     user_name = serializers.CharField(source="user.username", read_only=True)
+    user_id = serializers.IntegerField(source="user.id", read_only=True)
+    followers_count = serializers.SerializerMethodField()
+    following_count = serializers.SerializerMethodField()
+    followers = serializers.SerializerMethodField()
+    following = serializers.SerializerMethodField()
 
     class Meta:
         model = Profile
@@ -57,6 +62,19 @@ class ProfileSerializer(serializers.ModelSerializer):
         if obj.profile_pic:
             return request.build_absolute_uri(obj.profile_pic.url)
         return None
+    
+    def get_followers_count(self, obj):
+        return Follow.objects.filter(user=obj.user).count()
+
+    def get_following_count(self, obj):
+        return Follow.objects.filter(follower=obj.user).count()
+    
+    
+    def get_followers(self, obj):
+        return [f.follower.username for f in Follow.objects.filter(user=obj.user)]
+
+    def get_following(self, obj):
+        return [f.user.username for f in Follow.objects.filter(follower=obj.user)]
 
 class PostSerializer(serializers.ModelSerializer):
     post_url = serializers.SerializerMethodField(read_only=True)

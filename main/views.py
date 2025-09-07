@@ -157,7 +157,7 @@ class ToggleLikeViewSet(viewsets.ViewSet):
 
     @action(detail=True, methods=['post'])
     def toggle(self, request, pk=None):
-        post = get_object_or_404(Post, id=pk)
+        post = get_object_or_404(Post, post_id=pk)
         like, created = Like.objects.get_or_create(user=request.user, post=post)
 
         if not created:
