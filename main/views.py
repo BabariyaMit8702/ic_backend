@@ -1,7 +1,7 @@
 from django.shortcuts import HttpResponse,get_object_or_404
 from .serializers import UserSerializer,MyCustomTOPSerializer,ProfileSerializer,PostSerializer,LikeSerializer,CommentSerializer,FollowSerializer
 from .models import CustomUser,Profile,Post,Like,Comment,Follow
-from rest_framework import viewsets,status
+from rest_framework import viewsets,status,filters
 from rest_framework.response import Response
 from rest_framework_simplejwt.views import TokenObtainPairView,TokenRefreshView
 from datetime import timedelta
@@ -203,3 +203,9 @@ class FollowApi(viewsets.ModelViewSet):
             follow.delete()
             return Response({"message": "Unfollowed"}, status=status.HTTP_200_OK)
         return Response({"message": "Followed"}, status=status.HTTP_201_CREATED)
+
+class OtherProfile(viewsets.ModelViewSet):
+    queryset = Profile.objects.all()
+    serializer_class = ProfileSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['user__username']

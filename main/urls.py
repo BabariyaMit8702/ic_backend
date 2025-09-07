@@ -11,6 +11,7 @@ router.register(r'likes',views.LikeApi,basename='like-details')
 router.register(r'comments',views.CommentApi,basename='comment-details')
 router.register(r'like-management',views.ToggleLikeViewSet,basename='like-management')
 router.register(r'follow',views.FollowApi,basename='follow-ops')
+router.register(r'ohters-profile',views.OtherProfile,basename='searching')
 
 urlpatterns = [
     path('',views.the_second),
