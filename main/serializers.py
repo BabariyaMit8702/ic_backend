@@ -81,6 +81,8 @@ class PostSerializer(serializers.ModelSerializer):
     user = serializers.CharField(source="user.username", read_only=True)
     like_count = serializers.SerializerMethodField(read_only=True)
     is_liked_by_user = serializers.SerializerMethodField(read_only=True)
+    
+    
 
     class Meta:
         model = Post
