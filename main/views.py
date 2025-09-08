@@ -179,7 +179,7 @@ class Homepage(APIView):
         followings = Follow.objects.filter(follower=user).values_list('user',flat=True)
         posts = Post.objects.filter(user__in=followings).order_by('-created_at')
         # posts = Post.objects.filter(user__follower__follower=request.user)
-        serializer = PostSerializer(posts,many=True)
+        serializer = PostSerializer(posts,many=True ,context={'request': request})
         return Response(serializer.data)
     
 class FollowApi(viewsets.ModelViewSet):

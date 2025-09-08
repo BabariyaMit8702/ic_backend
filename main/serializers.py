@@ -81,8 +81,8 @@ class PostSerializer(serializers.ModelSerializer):
     user = serializers.CharField(source="user.username", read_only=True)
     like_count = serializers.SerializerMethodField(read_only=True)
     is_liked_by_user = serializers.SerializerMethodField(read_only=True)
-    
-    
+    user_profile_pic = serializers.SerializerMethodField(read_only=True)  # new field
+
 
     class Meta:
         model = Post
@@ -103,7 +103,16 @@ class PostSerializer(serializers.ModelSerializer):
         if request and request.user.is_authenticated:
             return Like.objects.filter(post=obj, user=request.user).exists()
         return False
-
+    
+    def get_user_profile_pic(self, obj):
+        request = self.context.get('request')
+        try:
+            profile = Profile.objects.get(user=obj.user)
+            if profile.profile_pic:
+                return request.build_absolute_uri(profile.profile_pic.url)
+        except Profile.DoesNotExist:
+            return None
+        return None
 
 class LikeSerializer(serializers.ModelSerializer):
     user = serializers.StringRelatedField()
