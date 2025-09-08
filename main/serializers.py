@@ -81,8 +81,8 @@ class PostSerializer(serializers.ModelSerializer):
     user = serializers.CharField(source="user.username", read_only=True)
     like_count = serializers.SerializerMethodField(read_only=True)
     is_liked_by_user = serializers.SerializerMethodField(read_only=True)
-    user_profile_pic = serializers.SerializerMethodField(read_only=True)  # new field
-
+    user_profile_pic = serializers.SerializerMethodField(read_only=True)
+    user_profile_id = serializers.SerializerMethodField(read_only=True) 
 
     class Meta:
         model = Post
@@ -113,6 +113,14 @@ class PostSerializer(serializers.ModelSerializer):
         except Profile.DoesNotExist:
             return None
         return None
+    
+    
+    def get_user_profile_id(self, obj):   
+        try:
+            profile = Profile.objects.get(user=obj.user)
+            return profile.Profile_id  
+        except Profile.DoesNotExist:
+            return None
 
 class LikeSerializer(serializers.ModelSerializer):
     user = serializers.StringRelatedField()
