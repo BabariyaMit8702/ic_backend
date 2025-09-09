@@ -10,6 +10,8 @@ from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth import get_user_model
 from rest_framework.decorators import action
 from rest_framework.views import APIView
+from django_filters.rest_framework import DjangoFilterBackend
+
 
 User = get_user_model()
 
@@ -170,6 +172,9 @@ class CommentApi(viewsets.ModelViewSet):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
     permission_classes = [IsAuthenticated]
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['post'] 
+
 
 class Homepage(APIView):
     permission_classes = [IsAuthenticated]

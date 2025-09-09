@@ -162,10 +162,32 @@ class LikeSerializer(serializers.ModelSerializer):
 
 class CommentSerializer(serializers.ModelSerializer):
     user = serializers.StringRelatedField()
+    user_name = serializers.CharField(source="user.username", read_only=True)
+    user_profile_pic = serializers.SerializerMethodField(read_only=True)
+    user_profile_id = serializers.SerializerMethodField(read_only=True) 
+
 
     class Meta:
         model = Comment
-        fields = ['user','body']
+        fields = '__all__'
+
+    def get_user_profile_pic(self, obj):
+        request = self.context.get('request')
+        try:
+            profile = Profile.objects.get(user=obj.user)
+            if profile.profile_pic:
+                return request.build_absolute_uri(profile.profile_pic.url)
+        except Profile.DoesNotExist:
+            return None
+        return None
+    
+    
+    def get_user_profile_id(self, obj):   
+        try:
+            profile = Profile.objects.get(user=obj.user)
+            return profile.Profile_id  
+        except Profile.DoesNotExist:
+            return None
 
 
 class FollowSerializer(serializers.ModelSerializer):
