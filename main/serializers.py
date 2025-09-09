@@ -52,6 +52,8 @@ class ProfileSerializer(serializers.ModelSerializer):
     following_count = serializers.SerializerMethodField()
     followers = serializers.SerializerMethodField()
     following = serializers.SerializerMethodField()
+    is_followed_by_me = serializers.SerializerMethodField()
+
 
     class Meta:
         model = Profile
@@ -76,6 +78,13 @@ class ProfileSerializer(serializers.ModelSerializer):
     def get_following(self, obj):
         return [f.user.username for f in Follow.objects.filter(follower=obj.user)]
 
+    def get_is_followed_by_me(self, obj):
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            return Follow.objects.filter(user=obj.user, follower=request.user).exists()
+        return False
+
+
 class PostSerializer(serializers.ModelSerializer):
     post_url = serializers.SerializerMethodField(read_only=True)
     user = serializers.CharField(source="user.username", read_only=True)
@@ -83,7 +92,7 @@ class PostSerializer(serializers.ModelSerializer):
     is_liked_by_user = serializers.SerializerMethodField(read_only=True)
     user_profile_pic = serializers.SerializerMethodField(read_only=True)
     user_profile_id = serializers.SerializerMethodField(read_only=True) 
-
+    
     class Meta:
         model = Post
         fields = '__all__'
@@ -121,7 +130,8 @@ class PostSerializer(serializers.ModelSerializer):
             return profile.Profile_id  
         except Profile.DoesNotExist:
             return None
-
+    
+    
 class LikeSerializer(serializers.ModelSerializer):
     user = serializers.StringRelatedField()
 
