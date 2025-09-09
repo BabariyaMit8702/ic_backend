@@ -70,14 +70,35 @@ class ProfileSerializer(serializers.ModelSerializer):
 
     def get_following_count(self, obj):
         return Follow.objects.filter(follower=obj.user).count()
-    
-    
+
     def get_followers(self, obj):
-        return [f.follower.username for f in Follow.objects.filter(user=obj.user)]
+        followers = Follow.objects.filter(user=obj.user)
+        return [
+            {
+                "username": f.follower.username,
+                "profile_id": f.follower.profile.Profile_id,
+                "profile_pic": (
+                    self.context["request"].build_absolute_uri(f.follower.profile.profile_pic.url)
+                    if f.follower.profile.profile_pic else None
+                )
+            }
+            for f in followers
+        ]
 
     def get_following(self, obj):
-        return [f.user.username for f in Follow.objects.filter(follower=obj.user)]
-
+        followings = Follow.objects.filter(follower=obj.user)
+        return [
+            {
+                "username": f.user.username,
+                "profile_id": f.user.profile.Profile_id,
+                "profile_pic": (
+                    self.context["request"].build_absolute_uri(f.user.profile.profile_pic.url)
+                    if f.user.profile.profile_pic else None
+                )
+            }
+            for f in followings
+        ]
+    
     def get_is_followed_by_me(self, obj):
         request = self.context.get('request')
         if request and request.user.is_authenticated:

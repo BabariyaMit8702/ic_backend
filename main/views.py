@@ -229,3 +229,31 @@ class LogoutView(APIView):
         response.delete_cookie("refresh_token", path="/")
         return response
 
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def unfollowed_users(request):
+    current_user = request.user
+    
+    # jinhe current user follow kar raha hai unko exclude kar do
+    following_ids = Follow.objects.filter(follower=current_user).values_list('user_id', flat=True)
+    
+    # apne aap ko bhi exclude karna hai
+    users = CustomUser.objects.exclude(id__in=following_ids).exclude(id=current_user.id)
+
+    data = []
+    for user in users:
+        try:
+            profile = Profile.objects.get(user=user)
+            data.append({
+                "username": user.username,
+                "profile_id": profile.Profile_id,
+                "bio": profile.bio,
+                "profile_pic": request.build_absolute_uri(profile.profile_pic.url) if profile.profile_pic else None
+            })
+        except Profile.DoesNotExist:
+            continue
+
+    return Response(data)

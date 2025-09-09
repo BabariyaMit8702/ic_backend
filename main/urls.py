@@ -20,6 +20,7 @@ urlpatterns = [
     path('refresh/',views.MyCUSREF.as_view()),
     path('home-page-feed/',views.Homepage.as_view(),name='home-feed'),
     path('log-out/',views.LogoutView.as_view(),name='logout'),
+    path('unfollowed/',views.unfollowed_users,name='not followed by user'),
     path('api/',include(router.urls)),
     ]
 
