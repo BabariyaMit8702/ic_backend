@@ -113,6 +113,7 @@ class PostSerializer(serializers.ModelSerializer):
     is_liked_by_user = serializers.SerializerMethodField(read_only=True)
     user_profile_pic = serializers.SerializerMethodField(read_only=True)
     user_profile_id = serializers.SerializerMethodField(read_only=True) 
+    comment_count = serializers.SerializerMethodField(read_only=True)
     
     class Meta:
         model = Post
@@ -127,6 +128,9 @@ class PostSerializer(serializers.ModelSerializer):
     
     def get_like_count(self, obj):
         return Like.objects.filter(post=obj).count()
+    
+    def get_comment_count(self, obj):
+        return Comment.objects.filter(post=obj).count()
 
     def get_is_liked_by_user(self, obj):
         request = self.context.get('request')
