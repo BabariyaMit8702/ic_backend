@@ -161,7 +161,7 @@ class LikeSerializer(serializers.ModelSerializer):
         fields = ['user']
 
 class CommentSerializer(serializers.ModelSerializer):
-    user = serializers.StringRelatedField()
+    user = serializers.StringRelatedField(read_only=True)
     user_name = serializers.CharField(source="user.username", read_only=True)
     user_profile_pic = serializers.SerializerMethodField(read_only=True)
     user_profile_id = serializers.SerializerMethodField(read_only=True) 

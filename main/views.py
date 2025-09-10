@@ -175,6 +175,9 @@ class CommentApi(viewsets.ModelViewSet):
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['post'] 
 
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
 
 class Homepage(APIView):
     permission_classes = [IsAuthenticated]
