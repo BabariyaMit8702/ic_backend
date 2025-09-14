@@ -11,6 +11,7 @@ from django.contrib.auth import get_user_model
 from rest_framework.decorators import action
 from rest_framework.views import APIView
 from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework_simplejwt.tokens import RefreshToken
 
 
 User = get_user_model()
@@ -231,10 +232,20 @@ class specific_profile(viewsets.ViewSet):
          
 class LogoutView(APIView):
     def post(self, request):
-        response = Response({"message": "Logged out successfully"})
-        # Cookie remove kar do
-        response.delete_cookie("access_token", path="/")
-        response.delete_cookie("refresh_token", path="/")
+        try:
+            ref_tkn = request.COOKIES.get('refresh_token')
+            if ref_tkn:
+                tkn = RefreshToken(ref_tkn)
+                tkn.blacklist()
+        except Exception as e:
+            return Response({'msg':'not found ref tkn'})
+        
+        response = Response({"message": "Logged out successfully"},status=status.HTTP_200_OK)
+        # response.delete_cookie("access_token",path='/',domain=None)
+        # response.delete_cookie("refresh_token",path='/',domain=None)
+        response.set_cookie("access_token", "", expires=0, path="/", secure=True, httponly=True, samesite="None")
+        response.set_cookie("refresh_token", "", expires=0, path="/", secure=True, httponly=True, samesite="None")
+
         return response
 
 from rest_framework.decorators import api_view, permission_classes
